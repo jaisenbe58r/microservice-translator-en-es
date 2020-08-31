@@ -45,21 +45,21 @@ El proyecto se estructura de la siguiente manera:
 
 ```python
 /var/www/microservice-translator-en-es
- -- app
- ---- static
- ---- templates
- ---- model
- ------ checkpoints
- ---- views.py
- ---- __init__.py
- -- Dockerfile
- -- .gitignore
- -- start.sh
- -- uwsgi.ini
- -- readme.md
- -- requirements.txt
- -- main.py
- ```
+--app
+----static
+----templates
+----model
+------checkpoints
+----views.py
+----__init__.py
+--Dockerfile
+--.gitignore
+--start.sh
+--uwsgi.ini
+--readme.md
+--requirements.txt
+--main.py
+```
 
 
 ## Paso 1: Configurar la aplicación de Flask
@@ -80,7 +80,6 @@ from app import views
 El archivo ```views.py``` del directorio app contendrá la mayor parte de la lógica de la aplicación.
 
 ```python
-# to tell flask what url shoud trigger the function index()
 @app.route('/')
 @app.route('/index')
 def index():
@@ -112,7 +111,7 @@ El archivo ```uwsgi.ini``` contendrá las configuraciones de uWSGI para nuestra 
 module = main
 callable = app
 master = true
-```` 
+```
 
 Este código define el módulo desde el que se proporcionará la aplicación de Flask, en este caso es el archivo ```main.py```. La opción _callable_ indica a uWSGI que use la instancia de app exportada por la aplicación principal. La opción master permite que su aplicación siga ejecutándose, de modo que haya poco tiempo de inactividad incluso cuando se vuelva a cargar toda la aplicación.
 
@@ -136,7 +135,7 @@ Para crear su implementación de Docker se necesitan dos archivos, dos archivos,
 
 ```Dockerfile``` estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
 
-```python
+```Dockerfile
 FROM tiangolo/uwsgi-nginx-flask:python3.6-alpine3.7
 
 RUN apk --update add bash nano
@@ -149,7 +148,8 @@ COPY ./requirements.txt /var/www/requirements.txt
 RUN pip install -r /var/www/requirements.txt
 ```
 
-En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```tiangolo/uwsgi-nginx-flask```, que podrá encontrar en [DockerHub](https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask). 
+
+En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```tiangolo/uwsgi-nginx-flask```, que podrá encontrar en [DockerHub.](https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask)
 
 Las primeras dos líneas especifican la imagen principal que utilizará para ejecutar la aplicación e instalar el procesador de comandos bash y el editor de texto _nano_. También instala el cliente git para realizar extracciones desde servicios de alojamiento de control de versiones, como GitHub, GitLab y Bitbucket, e incorporaciones en ellos. ```ENV STATIC_URL /static``` es una variable de entorno específica para esta imagen de Docker. Define la carpeta estática desde la cual se proporcionan todos los recursos como imágenes, archivos CSS y archivos JavaScript.
 
@@ -157,7 +157,7 @@ Las últimas dos líneas copiarán el archivo ```requirements.txt``` al contened
 
 Antes de escribir la secuencia de ```comandos start.sh```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
 
-```python
+```shell
 sudo nc localhost 8003 < /dev/null; echo $?
 ```
 
@@ -165,8 +165,7 @@ Si el resultado del comando anterior es ```1```, el puerto estará libre y podr�
 
 La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell que creará una imagen desde Dockerfile y un contenedor a partir de la imagen de Docker resultante:
 
-```python
-#!/bin/bash
+```shell
 app="docker.test"
 docker build -t ${app} .
 docker run -d -p 56733:80 \
@@ -182,13 +181,13 @@ El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demoni
 
 Para probar la creación de la imagen de Docker y un contenedor a partir de la imagen resultante, ejecute:
 
-```python
+```shell
 sudo bash start.sh
 ```
 
 Una vez que la secuencia de comandos termine de ejecutarse, utilice el siguiente comando para enumerar todos los contenedores en ejecución:
 
-```python
+```shell
 sudo docker ps
 ```
 
@@ -203,7 +202,7 @@ Las [plantillas](https://flask.palletsprojects.com/en/1.0.x/tutorial/templates/)
 
 El archivo ```index.html``` pertenece al directorio ```app/templates```:
 
-```python
+```html
 <!doctype html>
 
 <html lang="es">
@@ -229,7 +228,7 @@ El archivo ```index.html``` pertenece al directorio ```app/templates```:
 
 Por otra parte, se ha creado otro template para el resultado de la traducción ```result.html```:
 
-```python
+```html
 <!doctype html>
 
 <html lang="es">
@@ -259,7 +258,7 @@ Por otra parte, se ha creado otro template para el resultado de la traducción `
 
 Para que estos cambios se apliquen, deberá detener y reiniciar los contenedores de Docker. Ejecute el siguiente comando para volver a compilar el contenedor:
 
-```python
+```shell
 sudo docker stop docker.translate && sudo docker start docker.translate
 ```
 
@@ -285,7 +284,7 @@ Esto especifica un archivo que se modificará para activar una recarga completa 
 
 A continuación, si hace una modificación en cualquier _template_ y abre la página de inicio de su aplicación en http://```your-domain```:8003 observará que los cambios no se reflejan. Esto se debe a que la condición para volver a cargar es un cambio en el archivo uwsgi.ini. Para volver a cargar la aplicación, use touch a fin de activar la condición:
 
-```python
+```shell
 sudo touch uwsgi.ini
 ```
 
