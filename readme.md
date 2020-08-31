@@ -11,7 +11,7 @@ La aplicación a desplegar como microservicio va a ser el Traductor Inglés-Espa
 
 ## Introducción
 
-**Docker** es una aplicación de código abierto que permite a los administradores crear, administrar, implementar y replicar aplicaciones usando contenedores. Los contenedores pueden considerarse como un paquete que alberga solo las dependencias requeridas por la aplicación para ejecutarse a nivel de sistema operativo. Esto significa que cada aplicación implementada con Docker tienen un entorno propio y sus requisitos se gestionan por separado.
+**Docker** es una aplicación de código abierto que permite crear, administrar, implementar y replicar aplicaciones usando contenedores. Los contenedores pueden considerarse como un paquete que alberga solo las dependencias requeridas por la aplicación para ejecutarse a nivel de sistema operativo. Esto significa que cada aplicación implementada con Docker tienen un entorno propio y sus requisitos se gestionan por separado.
 
 **Flask** es un micromarco web que se compila con Python. Se denomina micromarco porque no requiere herramientas ni complementos específicos para ejecutarse. El marco de Flask es ligero y flexible, pero muy estructurado. Esto lo convierte en la opción preferida por encima de otros marcos.
 
@@ -29,7 +29,7 @@ Para completar este tutorial, necesitará lo siguiente:
 - Un servidor de Ubuntu 18.04 con Docker instalado, configurado siguiendo este [tutorial.](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04)
 - Docker instalado en su servidor, configurado siguiendo este [tutorial.](https://www.digitalocean.com/community/tutorials/como-instalar-y-usar-docker-en-ubuntu-18-04-1-es)
 - Nginx instalado siguiendo el paso uno del tutorial [Cómo instalar Nginx en Ubuntu 18.04.](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-18-04)
-- Lectura y comprensión sobre el Artículo [TRANSFORMER para la Traducción de Texto.](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
+- Lectura y comprensión sobre el artículo [TRANSFORMER para la Traducción de Texto.](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
 
 
 ## Entorno de desarrollo
@@ -44,7 +44,7 @@ git clone
 El proyecto se estructura de la siguiente manera:
 
 ```python
- TestApp
+/var/www/microservice-translator-en-es
  -- app
  ---- static
  ---- templates
@@ -72,12 +72,10 @@ El archivo ```__init__.py``` dentro del directorio ```app```, indica al intérpr
 
 ```python
 from flask import Flask
-
-#creating instance of the class
-app=Flask(__name__)
+app = Flask(__name__)
 
 from app import views
-````
+```
 
 El archivo ```views.py``` del directorio app contendrá la mayor parte de la lógica de la aplicación.
 
