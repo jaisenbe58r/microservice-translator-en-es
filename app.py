@@ -8,13 +8,13 @@ from flask import Flask, render_template, request
 from joblib import dump, load
 import re
 
-import tensorflow as tf
+# import tensorflow as tf
 
-from tensorflow.keras import layers
-import tensorflow_datasets as tfds
+# from tensorflow.keras import layers
+# import tensorflow_datasets as tfds
 
-from mlearner.nlp import Transformer
-from mlearner.nlp import Processor_data
+# from mlearner.nlp import Transformer
+# from mlearner.nlp import Processor_data
 
 
 # Constantes
