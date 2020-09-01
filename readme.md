@@ -2,9 +2,9 @@
 
 ![Portada](images/Portada1.PNG)
 
-El objetivo de este articulo es desplegar una aplicación de Flask utilizando Docker, para de esta manera crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
+El objetivo de este articulo es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
- Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que docker-compose luego los ejecutaran, montarán volúmenes y configurarán hosts para que ambos puedan comunicarse entre sí.
+Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutaran, montarán volúmenes y configurarán hosts para que ambos puedan comunicarse entre sí.
 
 La aplicación a desplegar como microservicio va a ser el Traductor Inglés-Español basado en Transformers que se implementó en el [post anterior](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
 
@@ -36,37 +36,16 @@ Para completar este tutorial, necesitará lo siguiente:
 
 ## Entorno de desarrollo
 
-Antes que nada vamos a necesitar preparar el entorno de desarrollo para la implementación de la aplicación. Para ello primero procedemos a clonar el repositorio base en su servidor, donde os he dejado preparado todo el código necesario para el desarrollo de esta práctica.
+Antes que nada vamos a necesitar preparar el entorno de desarrollo para la implementación de la aplicación. Para ello primero procedemos a clonar el [repositorio de GitHub](https://github.com/jaisenbe58r/microservice-translator-en-es) base en su servidor, donde os he dejado preparado todo el código necesario para el desarrollo de esta práctica.
 
 ```python
 cd you_proyect
 git clone 
 ```
 
-El proyecto se estructura de la siguiente manera:
-
-```python
-/var/www/microservice-translator-en-es
---app
-----static
-----templates
-----model
-------checkpoints
-----views.py
-----__init__.py
---Dockerfile
---.gitignore
---start.sh
---uwsgi.ini
---readme.md
---requirements.txt
---main.py
-```
-
-
 ## Paso 1: Configurar la aplicación de Flask
 
-El directorio ```app``` contendrá todos los archivos relacionados con la aplicación de Flask, como sus vistas y modelos. Las vistas son el código para responder a las solicitudes a su aplicación. Los modelos crean componentes de aplicaciones, y admiten patrones comunes dentro de una aplicación y entre varias de estas.
+El directorio ```microservice-translator-en-es``` contendrá todos los archivos relacionados con la aplicación de Flask, como sus vistas y modelos. Las vistas son el código para responder a las solicitudes a su aplicación. Los modelos crean componentes de aplicaciones, y admiten patrones comunes dentro de una aplicación y entre varias de estas.
 
 El directorio ```static``` es el punto en el que se alojan recursos como los archivos de imagen, CSS y JavaScript. El directorio ```templates``` es el espacio en el que dispondrá las plantillas HTML para su proyecto. El directorio ```model```será donde se guardarán los checkpoints de los modelos entrenados del Transformer.
 
@@ -79,7 +58,7 @@ app = Flask(__name__)
 from app import views
 ```
 
-El archivo ```views.py``` del directorio app contendrá la mayor parte de la lógica de la aplicación.
+El archivo ```app.py``` del directorio app contendrá la mayor parte de la lógica de la aplicación.
 
 ```python
 @app.route('/')
