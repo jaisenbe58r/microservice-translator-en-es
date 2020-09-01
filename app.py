@@ -117,9 +117,9 @@ def result():
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
 
-# if __name__ == '__main__': 
+if __name__ == '__main__': 
 
-#     app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
 # #     # app.run(port=8003)
 
 
