@@ -13,7 +13,6 @@ import tensorflow as tf
 from tensorflow.keras import layers
 import tensorflow_datasets as tfds
 
-import mlearner
 from mlearner.nlp import Transformer
 from mlearner.nlp import Processor_data
 
