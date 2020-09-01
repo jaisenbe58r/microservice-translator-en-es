@@ -117,11 +117,3 @@ def result():
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
 
-# if __name__=="__main__":
-
-#     # to_predict_list = ["I love you"]
-#     # result = ValuePredictor(to_predict_list)
-#     # print("-----------------------------")
-#     # print(result)
-
-#     app.run(port=5002)

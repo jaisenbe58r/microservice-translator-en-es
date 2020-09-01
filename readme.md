@@ -4,6 +4,8 @@
 
 El objetivo de este articulo es desplegar una aplicación de Flask utilizando Docker, para de esta manera crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
+ Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que docker-compose luego los ejecutaran, montarán volúmenes y configurarán hosts para que ambos puedan comunicarse entre sí.
+
 La aplicación a desplegar como microservicio va a ser el Traductor Inglés-Español basado en Transformers que se implementó en el [post anterior](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
 
 
