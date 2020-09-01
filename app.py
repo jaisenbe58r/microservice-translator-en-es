@@ -97,7 +97,7 @@ app = Flask(__name__)
 
 # to tell flask what url shoud trigger the function index()
 @app.route('/')
-@app.route('/index')
+# @app.route('/index')
 def index():
     return "Hola"
     return flask.render_template('app/templates/index.html')
