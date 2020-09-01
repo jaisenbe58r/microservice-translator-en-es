@@ -62,6 +62,25 @@ def result():
         sentence=f'en: {to_predict_list[0]}'
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
+processor_en = load('model/processor_en.joblib')
+processor_es = load('model/processor_es.joblib')
+
+# Carga Modelo
+loaded_model = Transformer(vocab_size_enc=VOCAB_SIZE_EN,
+                                vocab_size_dec=VOCAB_SIZE_ES,
+                                d_model=D_MODEL,
+                                nb_layers=NB_LAYERS,
+                                FFN_units=FFN_UNITS,
+                                nb_proj=NB_PROJ,
+                                dropout_rate=DROPOUT_RATE)
+
+ckpt = tf.train.Checkpoint(Model=loaded_model)
+ckpt_manager = tf.train.CheckpointManager(ckpt, "model/", max_to_keep=2)
+
+if ckpt_manager.latest_checkpoint:
+    ckpt.restore(ckpt_manager.latest_checkpoint)
+    print("The last checkpoint has been restored")
+
 # Funciones de predicción
 def ValuePredictor(to_predict_list):
     to_predict = to_predict_list[0]
@@ -100,26 +119,6 @@ def translate(sentence, model):
 
 
 if __name__ == '__main__': 
-
-
-    processor_en = load('model/processor_en.joblib')
-    processor_es = load('model/processor_es.joblib')
-
-    # Carga Modelo
-    loaded_model = Transformer(vocab_size_enc=VOCAB_SIZE_EN,
-                                    vocab_size_dec=VOCAB_SIZE_ES,
-                                    d_model=D_MODEL,
-                                    nb_layers=NB_LAYERS,
-                                    FFN_units=FFN_UNITS,
-                                    nb_proj=NB_PROJ,
-                                    dropout_rate=DROPOUT_RATE)
-
-    ckpt = tf.train.Checkpoint(Model=loaded_model)
-    ckpt_manager = tf.train.CheckpointManager(ckpt, "model/", max_to_keep=2)
-
-    if ckpt_manager.latest_checkpoint:
-        ckpt.restore(ckpt_manager.latest_checkpoint)
-        print("The last checkpoint has been restored")
 
     app.run(host='0.0.0.0')
 
