@@ -44,7 +44,7 @@ def result():
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
 
-# if __name__ == '__main__': 
+if __name__ == '__main__': 
 
     
 #     def Function_clean(text):
@@ -56,7 +56,7 @@ def result():
 
 #     from utils.load_model import ValuePredictor
 
-#     app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
 #     # app.run(port=8003)
 
 
