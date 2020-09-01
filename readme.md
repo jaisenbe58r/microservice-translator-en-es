@@ -158,7 +158,7 @@ Las últimas dos líneas copiarán el archivo ```requirements.txt``` al contened
 Antes de escribir la secuencia de ```comandos start.sh```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
 
 ```shell
-sudo nc localhost 8003 < /dev/null; echo $?
+sudo nc localhost 56733 < /dev/null; echo $?
 ```
 
 Si el resultado del comando anterior es ```1```, el puerto estará libre y podrá utilizarse. De lo contrario, deberá seleccionar un puerto diferente para usarlo en su archivo de configuración ```start.sh```.
@@ -175,9 +175,9 @@ docker run -d -p 56733:80 \
 
 La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. En la siguiente línea se especifica el nombre que desea dar a la imagen y al contenedor, y se guarda como una app con nombre variable. La siguiente línea indica a Docker que cree una imagen desde su Dockerfile ubicado en el directorio actual. Con esto, se creará una imagen llamada docker.translate en este ejemplo.
 
-Con las últimas tres líneas se crea un nuevo contenedor llamado docker.translate que se expone en el puerto 8003. Finalmente, vincula el directorio actual al directorio ```/var/www``` del contenedor.
+Con las últimas tres líneas se crea un nuevo contenedor llamado docker.translate que se expone en el puerto 56733. Finalmente, vincula el directorio actual al directorio ```/var/www``` del contenedor.
 
-El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano. El indicador ```-p``` se incluye para vincular un puerto del servidor a un puerto concreto del contenedor Docker. En este caso, vinculará el puerto ```8003``` al puerto ```80``` en el contenedor Docker. El indicador ```-v``` especifica un volumen de Docker para montarlo en el contenedor y, en este caso, se montará todo el directorio del proyecto en la carpeta ```/var/www``` del contenedor de Docker.
+El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano. El indicador ```-p``` se incluye para vincular un puerto del servidor a un puerto concreto del contenedor Docker. En este caso, vinculará el puerto ```56733``` al puerto ```80``` en el contenedor Docker. El indicador ```-v``` especifica un volumen de Docker para montarlo en el contenedor y, en este caso, se montará todo el directorio del proyecto en la carpeta ```/var/www``` del contenedor de Docker.
 
 Para probar la creación de la imagen de Docker y un contenedor a partir de la imagen resultante, ejecute:
 
@@ -262,7 +262,7 @@ Para que estos cambios se apliquen, deberá detener y reiniciar los contenedores
 sudo docker stop docker.translate && sudo docker start docker.translate
 ```
 
-Visite su aplicación en http://```your-domain```:8003 desde un navegador externo al servidorpara ver la la aplicación.
+Visite su aplicación en http://```your-domain```:56733 desde un navegador externo al servidorpara ver la la aplicación.
 
 
 ## Paso 5: Actualizar la aplicación
@@ -282,7 +282,7 @@ touch-reload = /app/uwsgi.ini
 
 Esto especifica un archivo que se modificará para activar una recarga completa de la aplicación.
 
-A continuación, si hace una modificación en cualquier _template_ y abre la página de inicio de su aplicación en http://```your-domain```:8003 observará que los cambios no se reflejan. Esto se debe a que la condición para volver a cargar es un cambio en el archivo uwsgi.ini. Para volver a cargar la aplicación, use touch a fin de activar la condición:
+A continuación, si hace una modificación en cualquier _template_ y abre la página de inicio de su aplicación en http://```your-domain```:56733 observará que los cambios no se reflejan. Esto se debe a que la condición para volver a cargar es un cambio en el archivo uwsgi.ini. Para volver a cargar la aplicación, use touch a fin de activar la condición:
 
 ```shell
 sudo touch uwsgi.ini
