@@ -99,6 +99,7 @@ def translate(sentence, model):
 @app.route('/')
 @app.route('/index')
 def index():
+    return "Hola"
     return flask.render_template('app/templates/index.html')
 
 @app.route('/result', methods = ['POST'])
