@@ -16,6 +16,8 @@ import tensorflow_datasets as tfds
 from mlearner.nlp import Transformer
 from mlearner.nlp import Processor_data
 
+from utils.load_model import ValuePredictor
+
 
 #creating instance of the class
 app = Flask(__name__)
