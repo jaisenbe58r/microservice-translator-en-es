@@ -30,6 +30,12 @@ NB_PROJ = 8
 DROPOUT_RATE = 0.1
 
 
+def Function_clean(text):
+        # Eliminamos la @ y su mención
+        text = re.sub(r"@[A-Za-z0-9]+", ' ', text)
+        # Eliminamos los links de las URLs
+        text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
+        return text
 processor_en = load('model/processor_en.joblib')
 processor_es = load('model/processor_es.joblib')
 
@@ -111,11 +117,10 @@ def result():
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
 
-# if __name__ == '__main__': 
+if __name__ == '__main__': 
 
-    
-#     app.run(host='0.0.0.0')
-# #     # app.run(port=8003)
+    app.run(host='0.0.0.0', port=56733)
+#     # app.run(port=8003)
 
 
 
