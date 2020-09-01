@@ -1,4 +1,3 @@
-from app import app
 import re
 
 def Function_clean(text):
@@ -8,7 +7,7 @@ def Function_clean(text):
         text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
         return text
 
-from utils.load_model import ValuePredictor
+from app import app
 
 app.run(host='0.0.0.0')
 # app.run(port=8003)
