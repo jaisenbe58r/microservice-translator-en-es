@@ -99,7 +99,7 @@ def translate(sentence, model):
 @app.route('/')
 @app.route('/index')
 def index():
-    return flask.render_template('app/templates/index.html')
+    return flask.render_template('app\templates\index.html')
 
 @app.route('/result', methods = ['POST'])
 def result():
@@ -114,7 +114,7 @@ def result():
             prediction='Error en el formato de los datos'
 
         sentence=f'en: {to_predict_list[0]}'
-        return render_template("app/templates/result.html", sentence=sentence, prediction=prediction)
+        return render_template("app\templates\result.html", sentence=sentence, prediction=prediction)
 
 
 if __name__ == '__main__': 
