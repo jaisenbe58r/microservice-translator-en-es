@@ -86,7 +86,7 @@ if __name__ == '__main__':
         print("The last checkpoint has been restored")
 
     # Funciones de predicción
-    def ValuePredictor(to_predict_list, loaded_model):
+    def ValuePredictor(to_predict_list):
         to_predict = to_predict_list[0]
         result = translate(to_predict, loaded_model)
         return result
