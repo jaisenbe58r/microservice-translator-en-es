@@ -119,7 +119,7 @@ def result():
 
 if __name__ == '__main__': 
 
-    app.run(host='0.0.0.0', port=56733)
+    app.run(host='104.248.132.63', port=56733)
 #     # app.run(port=8003)
 
 
