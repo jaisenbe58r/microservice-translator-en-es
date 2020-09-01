@@ -25,7 +25,6 @@ def Function_clean(text):
         return text
 
 # from utils.load_model import ValuePredictor
-e=2
 
 #creating instance of the class
 app = Flask(__name__)
@@ -59,7 +58,7 @@ if __name__ == '__main__':
 
     from utils.load_model import ValuePredictor
     print(ValuePredictor)
-    e = 1
+    1
     app.run(host='0.0.0.0')
 #     # app.run(port=8003)
 
