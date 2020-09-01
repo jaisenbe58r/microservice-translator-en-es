@@ -36,8 +36,8 @@ NB_PROJ = 8
 DROPOUT_RATE = 0.1
 
 
-# processor_en = load('model/processor_en.joblib')
-# processor_es = load('model/processor_es.joblib')
+processor_en = load('model/processor_en.joblib')
+processor_es = load('model/processor_es.joblib')
 
 
 # Carga Modelo
