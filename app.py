@@ -36,6 +36,7 @@ def Function_clean(text):
         # Eliminamos los links de las URLs
         text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
         return text
+        
 processor_en = load('model/processor_en.joblib')
 processor_es = load('model/processor_es.joblib')
 
