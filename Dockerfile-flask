@@ -4,8 +4,7 @@
 FROM python:3
 
 RUN apt -qq -y update \
-	&& apt -qq -y upgrade \
-    && pip install --upgrade pip
+	&& apt -qq -y upgrade
 # Set an environment variable with the directory
 # where we'll be running the app
 ENV APP /app
