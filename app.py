@@ -1,35 +1,35 @@
-#importing libraries
-import os
-import numpy as np
-import flask
-import pickle
-from flask import Flask, render_template, request
-from joblib import dump, load
-import re
+# #importing libraries
+# import os
+# import numpy as np
+# import flask
+# import pickle
+# from flask import Flask, render_template, request
+# from joblib import dump, load
+# import re
 
-import tensorflow as tf
+# import tensorflow as tf
 
-from tensorflow.keras import layers
-import tensorflow_datasets as tfds
+# from tensorflow.keras import layers
+# import tensorflow_datasets as tfds
 
-from mlearner.nlp import Transformer
-from mlearner.nlp import Processor_data
+# from mlearner.nlp import Transformer
+# from mlearner.nlp import Processor_data
 
 
-# Constantes
-MAX_LENGTH = 20
-VOCAB_SIZE_EN = 8198
-VOCAB_SIZE_ES = 8225
+# # Constantes
+# MAX_LENGTH = 20
+# VOCAB_SIZE_EN = 8198
+# VOCAB_SIZE_ES = 8225
 
-# Hiper Parámetros
-D_MODEL = 128
-NB_LAYERS = 4
-FFN_UNITS = 512
-NB_PROJ = 8
-DROPOUT_RATE = 0.1
+# # Hiper Parámetros
+# D_MODEL = 128
+# NB_LAYERS = 4
+# FFN_UNITS = 512
+# NB_PROJ = 8
+# DROPOUT_RATE = 0.1
 
-#creating instance of the class
-app = Flask(__name__)
+# #creating instance of the class
+# app = Flask(__name__)
 
 # def Function_clean(text):
 #     # Eliminamos la @ y su mención
@@ -95,12 +95,11 @@ app = Flask(__name__)
 #     return predicted_sentence
 
 
-# to tell flask what url shoud trigger the function index()
-@app.route('/')
+# # to tell flask what url shoud trigger the function index()
+# @app.route('/')
 # @app.route('/index')
-def index():
-    return "Hola"
-    return flask.render_template('app/templates/index.html')
+# def index():
+#     return flask.render_template('app/templates/index.html')
 
 # @app.route('/result', methods = ['POST'])
 # def result():
@@ -118,5 +117,53 @@ def index():
 #         return render_template("app/templates/result.html", sentence=sentence, prediction=prediction)
 
 
-if __name__ == '__main__': 
-    app.run (host = '0.0.0.0')
+# if __name__ == '__main__': 
+#     app.run (host = '0.0.0.0')
+
+
+
+
+
+
+
+
+
+from flask import Flask
+#importing libraries
+import os
+import numpy as np
+import flask
+import pickle
+from flask import Flask, render_template, request
+from joblib import dump, load
+import re
+
+import tensorflow as tf
+
+from tensorflow.keras import layers
+import tensorflow_datasets as tfds
+
+from mlearner.nlp import Transformer
+from mlearner.nlp import Processor_data
+
+
+# Constantes
+MAX_LENGTH = 20
+VOCAB_SIZE_EN = 8198
+VOCAB_SIZE_ES = 8225
+
+# Hiper Parámetros
+D_MODEL = 128
+NB_LAYERS = 4
+FFN_UNITS = 512
+NB_PROJ = 8
+DROPOUT_RATE = 0.1
+
+app = Flask(__name__)
+@app.route('/')
+def hello_world():
+    return 'Hello world!'
+
+    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
