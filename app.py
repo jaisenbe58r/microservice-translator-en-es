@@ -58,7 +58,8 @@ if __name__ == '__main__':
     processor_es = load('model/processor_es.joblib')
 
     from utils.load_model import ValuePredictor
-    
+    print(ValuePredictor)
+
     app.run(host='0.0.0.0')
 #     # app.run(port=8003)
 
