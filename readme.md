@@ -4,18 +4,18 @@
 
 El objetivo de este articulo es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
-Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutaran, montarán volúmenes y configurarán hosts para que ambos puedan comunicarse entre sí.
+Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutara, montará los volúmenes y configurará los hosts para que ambos puedan comunicarse entre sí.
 
-La aplicación a desplegar como microservicio va a ser el Traductor Inglés-Español basado en Transformers que se implementó en el [post anterior](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
+La aplicación a desplegar como microservicio va a ser el _Traductor Inglés-Español_ basado en Transformers que se implementó en el [post anterior](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
 
 
 
 
 ## Introducción
 
-**Docker** es una aplicación de código abierto que permite crear, administrar, implementar y replicar aplicaciones usando contenedores. Los contenedores pueden considerarse como un paquete que alberga solo las dependencias requeridas por la aplicación para ejecutarse a nivel de sistema operativo. Esto significa que cada aplicación implementada con Docker tienen un entorno propio y sus requisitos se gestionan por separado.
+**Docker** es una aplicación de código abierto que permite crear, administrar, implementar y replicar aplicaciones usando contenedores. Los contenedores pueden considerarse como un paquete que alberga solo las dependencias requeridas por la aplicación para ejecutarse a nivel de sistema operativo. Esto significa que cada aplicación implementada con Docker tiene un entorno propio y sus requisitos se gestionan por separado.
 
-**Flask** es un micromarco web que se compila con Python. Se denomina micromarco porque no requiere herramientas ni complementos específicos para ejecutarse. El marco de Flask es ligero y flexible, pero muy estructurado. Esto lo convierte en la opción preferida por encima de otros marcos.
+**Flask** es un micromarco web que se compila con Python. Se denomina micromarco porque no requiere herramientas ni complementos específicos para ejecutarse. El marco de Flask es ligero, flexible y muy estructurado. Esto lo convierte en la opción preferida por encima de otros marcos.
 
 Implementar una aplicación de Flask con Docker le permitirá replicarla en varios servidores con una reconfiguración mínima.
 
@@ -36,11 +36,11 @@ Para completar este tutorial, necesitará lo siguiente:
 
 ## Entorno de desarrollo
 
-Antes que nada vamos a necesitar preparar el entorno de desarrollo para la implementación de la aplicación. Para ello primero procedemos a clonar el [repositorio de GitHub](https://github.com/jaisenbe58r/microservice-translator-en-es) base en su servidor, donde os he dejado preparado todo el código necesario para el desarrollo de esta práctica.
+Antes de nada, vamos a necesitar preparar el entorno de desarrollo para la implementación de la aplicación. Para ello primero procedemos a clonar el [repositorio de GitHub](https://github.com/jaisenbe58r/microservice-translator-en-es) en su servidor, con todo el código necesario para el desarrollo de esta práctica.
 
 ```python
 cd you_proyect
-git clone 
+git clone https://github.com/jaisenbe58r/microservice-translator-en-es.git
 ```
 
 ## Paso 1: Configurar la aplicación de Flask
@@ -68,10 +68,8 @@ from flask import Flask, render_template, request
 
 from utils.load_model import ValuePredictor
 
-#creating instance of the class
 app = Flask(__name__)
 
-# to tell flask what url shoud trigger the function index()
 @app.route('/')
 @app.route('/index')
 def index():
@@ -97,7 +95,7 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0')
 ```
 
-La línea ```@app.route``` sobre la función se conoce como decorador. Los decoradores modifican la función que los sigue. En este caso, el decorador indica a Flask la URL que desencadenará la función ```index()```. Esta función renderizará el ```index.html``` en el momento que el servidor reciba una petición ```GET``` a ```/``` o ```index```.
+La línea ```@app.route``` sobre la función se conoce como decorador, estos decoradores modifican la función que los sigue. En este caso, el decorador indica a Flask la URL que desencadenará la función ```index()```. Esta función renderizará el ```index.html``` en el momento que el servidor reciba una petición ```GET``` a ```/``` o ```/index```.
 
 
 El archivo ```app.ini``` contendrá las [configuraciones de uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html) para nuestra aplicación. uWSGI es una opción de implementación para Nginx que es tanto un protocolo como un servidor de aplicaciones. El servidor de aplicaciones puede proporcionar los protocolos uWSGI, FastCGI y HTTP.
@@ -126,7 +124,7 @@ Este código define el módulo desde el que se proporcionará la aplicación de 
 
 ## Paso 2: Configurar Docker
 
-Vamos a necesitar dos imágenes de docker, una con Flask y otra con nginx. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo start.sh es una secuencia de comandos shell que creará una imagen y un contenedor desde ```Dockerfile```, estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
+Vamos a necesitar dos imágenes de docker, una con Flask y otra con Nginx. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo ```start.sh``` es una secuencia de comandos shell que creará una imagen y un contenedor desde ```Dockerfile```, estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
 
 ### Construcción de la imagen con Flask
 
@@ -159,10 +157,6 @@ CMD [ "uwsgi", "--ini", "app.ini" ]
 
 En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```python:3```, correspondiente a una imagen ligera de python3.
 
-Las primeras dos líneas especifican la imagen principal que utilizará para ejecutar la aplicación e instalar el procesador de comandos bash y el editor de texto _nano_. También instala el cliente git para realizar extracciones desde servicios de alojamiento de control de versiones, como GitHub, GitLab y Bitbucket, e incorporaciones en ellos. ```ENV STATIC_URL /static``` es una variable de entorno específica para esta imagen de Docker. Define la carpeta estática desde la cual se proporcionan todos los recursos como imágenes, archivos CSS y archivos JavaScript.
-
-Las últimas líneas copiarán el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego analice el archivo ```requirements.txt``` para instalar las dependencias especificadas. También copiaremos todo el directorio de trabajo del repositorio dentro de la imagen para posteriormente compartarlo como volumen externo.
-
 Antes de de seleccionar el puerto de trabajo, en este caso el ```56733```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
 
 ```cmd
@@ -171,9 +165,12 @@ sudo nc localhost 56733 < /dev/null; echo $?
 
 Si el resultado del comando anterior es ```1```, el puerto estará libre y podrá utilizarse. De lo contrario, deberá seleccionar un puerto diferente y repetir el procedimiento.
 
-### Construcción imagen de Nginx Docker
+Las últimas líneas copiarán el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego analice el archivo ```requirements.txt``` para instalar las dependencias especificadas. También copiaremos todo el directorio de trabajo del repositorio dentro de la imagen para posteriormente compartarlo como volumen externo.
 
-Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. Nuestro app.confesencialmente reemplazará el /etc/nginx/conf.d/default.confque el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
+
+### Construcción imagen de Nginx en Docker
+
+Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. El archivo ```app.conf```reemplazará el ```/etc/nginx/conf.d/default.conf``` que el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
 
 ```conf
 server {
@@ -249,7 +246,7 @@ build:
 ```context``` le dice al motor de Docker que solo use archivos en el directorio actual para construir la imagen. En segundo lugar ```dockerfile``` le está diciendo al motor que busque el archivo ```Dockerfile-flask``` para construir la imagen de flask.
 
 ```yml
-volumes:
+  volumes:
   - "./:/app"
 ```
 
