@@ -25,7 +25,7 @@ def Function_clean(text):
         return text
 
 # from utils.load_model import ValuePredictor
-
+e=2
 
 #creating instance of the class
 app = Flask(__name__)
