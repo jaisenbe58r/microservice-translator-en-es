@@ -13,21 +13,21 @@ import tensorflow as tf
 from tensorflow.keras import layers
 import tensorflow_datasets as tfds
 
-# from mlearner.nlp import Transformer
-# from mlearner.nlp import Processor_data
+from mlearner.nlp import Transformer
+from mlearner.nlp import Processor_data
 
 
-# # Constantes
-# MAX_LENGTH = 20
-# VOCAB_SIZE_EN = 8198
-# VOCAB_SIZE_ES = 8225
+# Constantes
+MAX_LENGTH = 20
+VOCAB_SIZE_EN = 8198
+VOCAB_SIZE_ES = 8225
 
-# # Hiper Parámetros
-# D_MODEL = 128
-# NB_LAYERS = 4
-# FFN_UNITS = 512
-# NB_PROJ = 8
-# DROPOUT_RATE = 0.1
+# Hiper Parámetros
+D_MODEL = 128
+NB_LAYERS = 4
+FFN_UNITS = 512
+NB_PROJ = 8
+DROPOUT_RATE = 0.1
 
 app = Flask(__name__)
 @app.route('/')
