@@ -28,7 +28,7 @@ processor_en = load('model/processor_en.joblib')
 processor_es = load('model/processor_es.joblib')
 
 
-from utils.load_model import ValuePredictor
+# from utils.load_model import ValuePredictor
 
 
 #creating instance of the class
