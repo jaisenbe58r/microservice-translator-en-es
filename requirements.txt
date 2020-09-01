@@ -1,3 +1,1 @@
 Flask==1.0.2
-
-mlearner==0.2.3
