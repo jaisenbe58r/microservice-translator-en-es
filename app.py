@@ -39,8 +39,8 @@ def Function_clean(text):
     return text
 
 
-# processor_en = load('app/model/processor_en.joblib')
-# processor_es = load('app/model/processor_es.joblib')
+processor_en = load('model/processor_en.joblib')
+processor_es = load('model/processor_es.joblib')
 
 # Carga Modelo
 loaded_model = Transformer(vocab_size_enc=VOCAB_SIZE_EN,
@@ -52,7 +52,7 @@ loaded_model = Transformer(vocab_size_enc=VOCAB_SIZE_EN,
                                 dropout_rate=DROPOUT_RATE)
 
 ckpt = tf.train.Checkpoint(Model=loaded_model)
-ckpt_manager = tf.train.CheckpointManager(ckpt, "app/model/", max_to_keep=2)
+ckpt_manager = tf.train.CheckpointManager(ckpt, "model/", max_to_keep=2)
 
 if ckpt_manager.latest_checkpoint:
     ckpt.restore(ckpt_manager.latest_checkpoint)
@@ -114,11 +114,11 @@ def result():
             prediction='Error en el formato de los datos'
 
         sentence=f'en: {to_predict_list[0]}'
-        return render_template("app\templates\result.html", sentence=sentence, prediction=prediction)
+        return render_template("result.html", sentence=sentence, prediction=prediction)
 
 
 if __name__ == '__main__': 
-    app.run (host = '0.0.0.0')
+    app.run (port=8003)
 
 
 
