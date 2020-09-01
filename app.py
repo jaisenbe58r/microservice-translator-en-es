@@ -24,7 +24,7 @@ def Function_clean(text):
         text = re.sub(r"https?://[A-Za-z0-9./]+", ' ', text)
         return text
 
-from utils.load_model import ValuePredictor
+# from utils.load_model import ValuePredictor
 
 
 #creating instance of the class
@@ -54,6 +54,9 @@ def result():
 
 if __name__ == '__main__': 
 
+    processor_en = load('model/processor_en.joblib')
+    processor_es = load('model/processor_es.joblib')
+    
     app.run(host='0.0.0.0')
 #     # app.run(port=8003)
 
