@@ -62,6 +62,42 @@ def result():
         sentence=f'en: {to_predict_list[0]}'
         return render_template("result.html", sentence=sentence, prediction=prediction)
 
+# Funciones de predicción
+def ValuePredictor(to_predict_list):
+    to_predict = to_predict_list[0]
+    result = translate(to_predict, loaded_model)
+    return result
+
+def evaluate(inp_sentence, model):
+    inp_sentence = \
+        [VOCAB_SIZE_EN-2] + processor_en.tokenizer.encode(inp_sentence) + [VOCAB_SIZE_EN-1]
+    enc_input = tf.expand_dims(inp_sentence, axis=0)
+    
+    output = tf.expand_dims([VOCAB_SIZE_ES-2], axis=0)
+    
+    for _ in range(MAX_LENGTH):
+        predictions = model(enc_input, output, False) #(1, seq_length, VOCAB_SIZE_ES)
+        
+        prediction = predictions[:, -1:, :]
+        
+        predicted_id = tf.cast(tf.argmax(prediction, axis=-1), tf.int32)
+        
+        if predicted_id == VOCAB_SIZE_ES-1:
+            return tf.squeeze(output, axis=0)
+        
+        output = tf.concat([output, predicted_id], axis=-1)
+        
+    return tf.squeeze(output, axis=0)
+
+
+def translate(sentence, model):
+    output = evaluate(sentence, model).numpy()
+    
+    predicted_sentence = processor_es.tokenizer.decode(
+        [i for i in output if i < VOCAB_SIZE_ES-2]
+    )
+    return predicted_sentence
+
 
 if __name__ == '__main__': 
 
@@ -84,42 +120,6 @@ if __name__ == '__main__':
     if ckpt_manager.latest_checkpoint:
         ckpt.restore(ckpt_manager.latest_checkpoint)
         print("The last checkpoint has been restored")
-
-    # Funciones de predicción
-    def ValuePredictor(to_predict_list):
-        to_predict = to_predict_list[0]
-        result = translate(to_predict, loaded_model)
-        return result
-
-    def evaluate(inp_sentence, model):
-        inp_sentence = \
-            [VOCAB_SIZE_EN-2] + processor_en.tokenizer.encode(inp_sentence) + [VOCAB_SIZE_EN-1]
-        enc_input = tf.expand_dims(inp_sentence, axis=0)
-        
-        output = tf.expand_dims([VOCAB_SIZE_ES-2], axis=0)
-        
-        for _ in range(MAX_LENGTH):
-            predictions = model(enc_input, output, False) #(1, seq_length, VOCAB_SIZE_ES)
-            
-            prediction = predictions[:, -1:, :]
-            
-            predicted_id = tf.cast(tf.argmax(prediction, axis=-1), tf.int32)
-            
-            if predicted_id == VOCAB_SIZE_ES-1:
-                return tf.squeeze(output, axis=0)
-            
-            output = tf.concat([output, predicted_id], axis=-1)
-            
-        return tf.squeeze(output, axis=0)
-
-
-    def translate(sentence, model):
-        output = evaluate(sentence, model).numpy()
-        
-        predicted_sentence = processor_es.tokenizer.decode(
-            [i for i in output if i < VOCAB_SIZE_ES-2]
-        )
-        return predicted_sentence
 
     app.run(host='0.0.0.0')
 
