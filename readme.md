@@ -49,18 +49,29 @@ El directorio ```microservice-translator-en-es``` contendrá todos los archivos 
 
 El directorio ```static``` es el punto en el que se alojan recursos como los archivos de imagen, CSS y JavaScript. El directorio ```templates``` es el espacio en el que dispondrá las plantillas HTML para su proyecto. El directorio ```model```será donde se guardarán los checkpoints de los modelos entrenados del Transformer.
 
-El archivo ```__init__.py``` dentro del directorio ```app```, indica al intérprete de Python que el directorio ```app``` es un paquete y debería tratarse como tal. ```__init__.py``` creará una instancia de Flask e importará la lógica desde el archivo ```views.py```:
+El archivo ```requirements.txt``` especifica las dependencias que el administrador de paquetes pip instalará en la implementación de Docker:
 
-```python
-from flask import Flask
-app = Flask(__name__)
 
-from app import views
+```txt
+Flask==1.0.2
+uWSGI==2.0.17.1
+tensorflow-cpu==2.3.0
+tensorflow_datasets==3.2.1
+mlearner==0.2.7
 ```
 
-El archivo ```app.py``` del directorio app contendrá la mayor parte de la lógica de la aplicación.
+El archivo ```app.py``` del directorio app contendrá la mayor parte de la lógica de nuestra aplicación web. No profundizaré en cómo funciona Flask, pero puedes obtener más información en su amplia [documentación.](https://flask.palletsprojects.com/en/1.0.x/quickstart/)
 
 ```python
+import flask
+from flask import Flask, render_template, request
+
+from utils.load_model import ValuePredictor
+
+#creating instance of the class
+app = Flask(__name__)
+
+# to tell flask what url shoud trigger the function index()
 @app.route('/')
 @app.route('/index')
 def index():
@@ -80,101 +91,186 @@ def result():
 
         sentence=f'en: {to_predict_list[0]}'
         return render_template("result.html", sentence=sentence, prediction=prediction)
+
+if __name__ == '__main__': 
+
+    app.run(host='0.0.0.0')
 ```
 
 La línea ```@app.route``` sobre la función se conoce como decorador. Los decoradores modifican la función que los sigue. En este caso, el decorador indica a Flask la URL que desencadenará la función ```index()```. Esta función renderizará el ```index.html``` en el momento que el servidor reciba una petición ```GET``` a ```/``` o ```index```.
 
 
-El archivo ```uwsgi.ini``` contendrá las configuraciones de uWSGI para nuestra aplicación. uWSGI es una opción de implementación para Nginx que es tanto un protocolo como un servidor de aplicaciones. El servidor de aplicaciones puede proporcionar los protocolos uWSGI, FastCGI y HTTP.
+El archivo ```app.ini``` contendrá las [configuraciones de uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/Configuration.html) para nuestra aplicación. uWSGI es una opción de implementación para Nginx que es tanto un protocolo como un servidor de aplicaciones. El servidor de aplicaciones puede proporcionar los protocolos uWSGI, FastCGI y HTTP.
 
-```python
+```ini
 [uwsgi]
-module = main
+protocol = uwsgi
+; This is the name of our Python file
+; minus the file extension
+module = app
+; This is the name of the variable
+; in our script that will be called
 callable = app
 master = true
+; Set uWSGI to start up 5 workers
+processes = 5
+; We use the port 56733 which we will
+; then expose on our Dockerfile
+socket = 0.0.0.0:56733
+vacuum = true
+die-on-term = true
 ```
 
-Este código define el módulo desde el que se proporcionará la aplicación de Flask, en este caso es el archivo ```main.py```. La opción _callable_ indica a uWSGI que use la instancia de app exportada por la aplicación principal. La opción master permite que su aplicación siga ejecutándose, de modo que haya poco tiempo de inactividad incluso cuando se vuelva a cargar toda la aplicación.
+Este código define el módulo desde el que se proporcionará la aplicación de Flask, en este caso es el archivo ```app.py```. La opción _callable_ indica a uWSGI que use la instancia de app exportada por la aplicación principal. La opción master permite que su aplicación siga ejecutándose, de modo que haya poco tiempo de inactividad incluso cuando se vuelva a cargar toda la aplicación.
 
-el archivo ```main.py``` contiene lo siguiente:
-
-```python
-from app import app
-```
-
-Finalmente, el archivo requirements.txt especifica las dependencias que el administrador de paquetes pip instalará en la implementación de Docker:
-
-```python
-Flask==1.0.2
-tensorflow==2.1.0
-mlearner==0.2.3
-```
 
 ## Paso 2: Configurar Docker
 
-Para crear su implementación de Docker se necesitan dos archivos, dos archivos, Dockerfile y start.sh. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo start.sh es una secuencia de comandos shell que creará una imagen y un contenedor desde Dockerfile.
+Vamos a necesitar dos imágenes de docker, una con Flask y otra con nginx. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo start.sh es una secuencia de comandos shell que creará una imagen y un contenedor desde ```Dockerfile```, estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
 
-```Dockerfile``` estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
+### Construcción de la imagen con Flask
 
 ```Dockerfile
-FROM tiangolo/uwsgi-nginx-flask:python3.6-alpine3.7
-
-RUN apk --update add bash nano
-
-ENV STATIC_URL /static
-ENV STATIC_PATH /var/www/app/static
-
-COPY ./requirements.txt /var/www/requirements.txt
-
-RUN pip install -r /var/www/requirements.txt
+# Dockerfile-flask
+#  Python 3 image
+FROM python:3
+RUN apt -qq -y update \
+	&& apt -qq -y upgrade
+# Set an environment variable with the directory
+# where we'll be running the app
+ENV APP /app
+# Create the directory and instruct Docker to operate
+# from there from now on
+RUN mkdir $APP
+WORKDIR $APP
+# Expose the port uWSGI will listen on
+EXPOSE 56733
+# Copy the requirements file in order to install
+# Python dependencies
+COPY requirements.txt .
+# Install Python dependencies
+RUN pip install -r requirements.txt
+# We copy the rest of the codebase into the image
+COPY . .
+# Finally, we run uWSGI with the ini file we
+# created earlier
+CMD [ "uwsgi", "--ini", "app.ini" ]
 ```
 
-
-En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```tiangolo/uwsgi-nginx-flask```, que podrá encontrar en [DockerHub.](https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask)
+En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```python:3```, correspondiente a una imagen ligera de python3.
 
 Las primeras dos líneas especifican la imagen principal que utilizará para ejecutar la aplicación e instalar el procesador de comandos bash y el editor de texto _nano_. También instala el cliente git para realizar extracciones desde servicios de alojamiento de control de versiones, como GitHub, GitLab y Bitbucket, e incorporaciones en ellos. ```ENV STATIC_URL /static``` es una variable de entorno específica para esta imagen de Docker. Define la carpeta estática desde la cual se proporcionan todos los recursos como imágenes, archivos CSS y archivos JavaScript.
 
-Las últimas dos líneas copiarán el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego analice el archivo ```requirements.txt``` para instalar las dependencias especificadas.
+Las últimas líneas copiarán el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego analice el archivo ```requirements.txt``` para instalar las dependencias especificadas. También copiaremos todo el directorio de trabajo del repositorio dentro de la imagen para posteriormente compartarlo como volumen externo.
 
-Antes de escribir la secuencia de ```comandos start.sh```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
+Antes de de seleccionar el puerto de trabajo, en este caso el ```56733```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
 
-```shell
+```cmd
 sudo nc localhost 56733 < /dev/null; echo $?
 ```
 
-Si el resultado del comando anterior es ```1```, el puerto estará libre y podrá utilizarse. De lo contrario, deberá seleccionar un puerto diferente para usarlo en su archivo de configuración ```start.sh```.
+Si el resultado del comando anterior es ```1```, el puerto estará libre y podrá utilizarse. De lo contrario, deberá seleccionar un puerto diferente y repetir el procedimiento.
 
-La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell que creará una imagen desde Dockerfile y un contenedor a partir de la imagen de Docker resultante:
+### Construcción imagen de Nginx Docker
 
-```shell
-app="docker.test"
-docker build -t ${app} .
-docker run -d -p 56733:80 \
-  --name=${app} \
-  -v $PWD:/app ${app}
+Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. Nuestro app.confesencialmente reemplazará el /etc/nginx/conf.d/default.confque el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
+
+```conf
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    location / { try_files $uri @app; }
+    location @app {
+        include uwsgi_params;
+        uwsgi_pass flask:56733;
+    }
+}
 ```
 
-La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. En la siguiente línea se especifica el nombre que desea dar a la imagen y al contenedor, y se guarda como una app con nombre variable. La siguiente línea indica a Docker que cree una imagen desde su Dockerfile ubicado en el directorio actual. Con esto, se creará una imagen llamada docker.translate en este ejemplo.
+La línea se uwsgi_pass ```flask:56733``` está utilizando flask como host para enrutar el tráfico. Esto se debe a que configuraremos ```docker-compose``` para conectar nuestros contenedores Flask y Nginx a través del ```flask``` como nombre de host.
 
-Con las últimas tres líneas se crea un nuevo contenedor llamado docker.translate que se expone en el puerto 56733. Finalmente, vincula el directorio actual al directorio ```/var/www``` del contenedor.
 
-El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano. El indicador ```-p``` se incluye para vincular un puerto del servidor a un puerto concreto del contenedor Docker. En este caso, vinculará el puerto ```56733``` al puerto ```80``` en el contenedor Docker. El indicador ```-v``` especifica un volumen de Docker para montarlo en el contenedor y, en este caso, se montará todo el directorio del proyecto en la carpeta ```/var/www``` del contenedor de Docker.
+Nuestro Dockerfile para Nginx simplemente heredará la última imagen de [Nginx del registro de Docker](https://hub.docker.com/_/nginx/), eliminará el archivo de configuración predeterminado y agregará el archivo de configuración que acabamos de crear durante la compilación. Nombraremos el archivo ```Dockerfile-nginx```.
 
-Para probar la creación de la imagen de Docker y un contenedor a partir de la imagen resultante, ejecute:
-
-```shell
-sudo bash start.sh
+```Dockerfile
+# Dockerfile-nginx
+FROM nginx:latest
+# Nginx will listen on this port
+EXPOSE 80
+# Remove the default config file that
+# /etc/nginx/nginx.conf includes
+RUN rm /etc/nginx/conf.d/default.conf
+# We copy the requirements file in order to install
+# Python dependencies
+COPY app.conf /etc/nginx/conf.d
 ```
 
-Una vez que la secuencia de comandos termine de ejecutarse, utilice el siguiente comando para enumerar todos los contenedores en ejecución:
 
-```shell
-sudo docker ps
+### Implementación del orquestador docker-compose.
+
+
+Toda la configuración de ```docker-compose``` va en un archivo ```YML``` llamado ```docker-compose.yml``` alojado en la raíz del proyecto. No profundizaré mucho en la sintaxis específica del archivo, pero puedes encontrar información sobre todo lo que puedes hacer con él en la referencia de [redacción del archivo](https://docs.docker.com/compose/compose-file/).
+
+```yml
+version: '3'
+services:
+  flask:
+    image: webapp-flask
+    build:
+      context: .
+      dockerfile: Dockerfile-flask
+    volumes:
+      - "./:/app"
+  nginx:
+    image: webapp-nginx
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - 56733:80
+    depends_on:
+      - flask
 ```
 
-Verá el contenedor docker.translate en ejecución. Ahora que se está ejecutando, visite la dirección IP en el puerto especificado de su navegador: http://```dominio```.
+Las claves debajo ```services:``` definen los nombres de cada uno de nuestros servicios, contenedores Docker. De ahí, flask y nginx sean los nombres de nuestros dos contenedores.
 
-XXXXXXXXX
+```yml
+imagen: webapp-flask
+```
+
+Esta línea especifica qué nombre tendrá nuestra imagen después de crearla. ```docker-compose``` construirá la imagen la primera vez que la lancemos y mantendrá un registro del nombre para todos los lanzamientos futuros.
+
+```yml
+build:
+  context: .
+  dockerfile: Dockerfile-flask
+```
+
+```context``` le dice al motor de Docker que solo use archivos en el directorio actual para construir la imagen. En segundo lugar ```dockerfile``` le está diciendo al motor que busque el archivo ```Dockerfile-flask``` para construir la imagen de flask.
+
+```yml
+volumes:
+  - "./:/app"
+```
+
+Aquí simplemente estamos diciendo a ```docker-compose``` que monte nuestra carpeta actual en el directorio ```/app``` en el contenedor cuando se activa. De esta manera, a medida que hacemos cambios en la aplicación, no tendremos que seguir construyendo la imagen a menos que sea un cambio importante, como una dependencia de un módulo de software.
+
+Para el servicio ```nginx```, hay algunas cosas a tener en cuenta:
+
+```yml
+ports: 
+  - 56733:80
+```
+
+Esta pequeña sección le dice a ```docker-compose```que asigne el puerto ```56733``` de su máquina local al puerto ```80``` del contenedor Nginx (puerto que Nginx sirve por defecto).
+
+```yml
+depends_on:
+  - flask
+```
+
+Tal y como se ha implementado en el ```app.conf```, enrutamos el tráfico de Nginx a uWSGI y viceversa enviando datos a través del ```flask```como nombre de host. Lo que hace esta sección es crear un nombre de host virtual ```flask```en nuestro contenedor ```nginx``` y configurar la red para que podamos enrutar los datos entrantes a nuestra aplicación uWSGI que vive en un contenedor diferente. La ```depends_on``` directiva también espera hasta que el contenedor ```flask```esté en un estado funcional antes de lanzar el contenedor ```nginx```, lo que evita tener un escenario en el que Nginx falla si el host ```flask``` no responde.
+
 
 
 ## Paso 3: Presentar archivos de plantillas
@@ -237,13 +333,38 @@ Por otra parte, se ha creado otro template para el resultado de la traducción `
 
 ## Paso 4: Desplegar Aplicación
 
-Para que estos cambios se apliquen, deberá detener y reiniciar los contenedores de Docker. Ejecute el siguiente comando para volver a compilar el contenedor:
 
-```shell
-sudo docker stop docker.translate && sudo docker start docker.translate
+La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell que nos permitirá ejecutar la contrucción del ```docker-compose.yml```, para que los contenedores se ejecuten en modo background.
+
+```bash
+#!/bin/bash
+docker-compose up -d
 ```
 
-Visite su aplicación en http://```your-domain```:56733 desde un navegador externo al servidorpara ver la la aplicación.
+La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. 
+
+El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano.
+
+Para probar la creación de las imagen de Docker y los contenedores a partir de las imagenes resultantes, ejecute:
+
+```shell
+sudo bash start.sh
+```
+
+Una vez que la secuencia de comandos termine de ejecutarse, utilice el siguiente comando para enumerar todos los contenedores en ejecución:
+
+```shell
+sudo docker ps
+```
+
+Verá el contenedor docker.translate en ejecución. Ahora que se está ejecutando, visite la dirección IP en el puerto especificado de su navegador: http://```dominio:56733```.
+
+![cmd_docker](images/cmd_docker.PNG)
+
+
+Ahora ya puede visitar su aplicación en http://```your-domain:56733``` desde un navegador externo al servidor para ver la la aplicación en ejecución.
+
+![web](images/web.PNG)
 
 
 ## Paso 5: Actualizar la aplicación
@@ -263,7 +384,7 @@ touch-reload = /app/uwsgi.ini
 
 Esto especifica un archivo que se modificará para activar una recarga completa de la aplicación.
 
-A continuación, si hace una modificación en cualquier _template_ y abre la página de inicio de su aplicación en http://```your-domain```:56733 observará que los cambios no se reflejan. Esto se debe a que la condición para volver a cargar es un cambio en el archivo uwsgi.ini. Para volver a cargar la aplicación, use touch a fin de activar la condición:
+A continuación, si hace una modificación en cualquier _template_ y abre la página de inicio de su aplicación en http://```your-domain:56733``` observará que los cambios no se reflejan. Esto se debe a que la condición para volver a cargar es un cambio en el archivo uwsgi.ini. Para volver a cargar la aplicación, use touch a fin de activar la condición:
 
 ```shell
 sudo touch uwsgi.ini
@@ -271,6 +392,12 @@ sudo touch uwsgi.ini
 
 
 ## Conclusiones
-A través de este tutorial, se ha una aplicación de Flask y su implementación en un contenedor de Docker. También se configuró touch-reload para actualizar su aplicación sin necesidad de reiniciar el contenedor.
+
+A través de este tutorial, se ha implementado una aplicación de Flask como microservicio y se ha utilizado docker compose para administrar múltiples contenedores que necesitan comunicarse entre sí. Con docker compose podemos  especificar configuraciones que de otra manera tendría que incluir en cada comando ```docker run``` para cada contenedor individual, incluidas las vinculaciones de red y volumen. Debido a que toda la configuración se encuentra en un archivo, puede controlar la versión fácilmente y compartirla con sus pares para que su aplicación se ejecute de la manera más similar posible en todas sus estaciones de trabajo.
+
+También se configuró touch-reload para actualizar su aplicación sin necesidad de reiniciar el contenedor.
 
 Con su nueva aplicación en Docker, ahora podrá realizar el escalamiento de forma sencilla. Para obtener más información sobre el uso de Docker, consulte su [documentación oficial.](https://docs.docker.com/)
+
+Sin embargo, esta no es la manera más eficiente de implementar aplicaciones para producción, ya que, existen servicios mucho más confiables para ayudarlo a hacerlo y al mismo tiempo crear los enlaces de red necesarios entre contenedores cuando sea necesario (por ejemplo, AWS ECS, Heroku, Kubernetes, etc.)
+
