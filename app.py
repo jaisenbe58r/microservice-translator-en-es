@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     from utils.load_model import ValuePredictor
     print(ValuePredictor)
-
+    print("*************************************************")
     app.run(host='0.0.0.0')
 #     # app.run(port=8003)
 
