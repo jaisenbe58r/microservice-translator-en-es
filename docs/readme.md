@@ -1,6 +1,6 @@
 # Microservicio Deep-Learning alojado en DigitalOcean usando Docker, Flask y Nginx
 
-![Portada](../images/Portada1.PNG)
+![Portada](Portada1.PNG)
 
 El objetivo de este [artículo](https://medium.com/@jaimesendraberenguer/microservicio-deep-learning-alojado-en-digitalocean-usando-docker-flask-y-nginx-224d27f3f3ed) es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
@@ -355,12 +355,12 @@ sudo docker ps
 
 Verá los contenedores en ejecución en ejecución sobre un mismo servicio. Ahora que se está ejecutando, visite la dirección IP pública de su servidor en el puerto especificado de su navegador http://```IP:56733```. o accediendo desde su dominio personal http://```your-domain:56733```.
 
-![cmd_docker](../images/cmd_docker.PNG)
+![cmd_docker](cmd_docker.PNG)
 
 
 Ahora ya puede visitar su aplicación en http://```your-domain:56733``` desde un navegador externo al servidor para ver la la aplicación en ejecución.
 
-![web](../images/web.PNG)
+![web](web.PNG)
 
 
 ## Paso 5: Actualizar la aplicación
