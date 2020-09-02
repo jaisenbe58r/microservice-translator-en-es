@@ -124,7 +124,7 @@ Este código define el módulo desde el que se proporcionará la aplicación de 
 
 ## Paso 2: Configurar Docker
 
-Vamos a necesitar dos imágenes de docker, una con Flask y otra con Nginx. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo ```start.sh``` es una secuencia de comandos shell que creará una imagen y un contenedor desde ```Dockerfile```, estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
+Vamos a necesitar dos imágenes de docker, una con Flask y otra con Nginx. El archivo Dockerfile es un documento de texto que contiene los comandos utilizados para ensamblar la imagen. El archivo ```start.sh``` es una secuencia de comandos shell que creará el servicio compuesto por las dos imagenes y un contenedores desde ```Dockerfile```, estos comandos especifican la forma en que se creará la imagen y los requisitos adicionales que se incluirán.
 
 ### Construcción de la imagen con Flask
 
@@ -155,7 +155,7 @@ COPY . .
 CMD [ "uwsgi", "--ini", "app.ini" ]
 ```
 
-En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```python:3```, correspondiente a una imagen ligera de python3.
+En este ejemplo, la imagen de Docker se creará a partir de una imagen existente, ```python:3```, correspondiente a una imagen ligera de _python3_.
 
 Antes de de seleccionar el puerto de trabajo, en este caso el ```56733```, primero asegúrese de disponer de un puerto abierto para usarlo en la configuración. Para verificar si hay un puerto libre, ejecute el siguiente comando:
 
@@ -165,12 +165,12 @@ sudo nc localhost 56733 < /dev/null; echo $?
 
 Si el resultado del comando anterior es ```1```, el puerto estará libre y podrá utilizarse. De lo contrario, deberá seleccionar un puerto diferente y repetir el procedimiento.
 
-Las últimas líneas copiarán el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego analice el archivo ```requirements.txt``` para instalar las dependencias especificadas. También copiaremos todo el directorio de trabajo del repositorio dentro de la imagen para posteriormente compartarlo como volumen externo.
+Las últimas líneas copia el archivo ```requirements.txt``` al contenedor para que pueda ejecutarse y luego se analiza el archivo ```requirements.txt``` para instalar las dependencias especificadas. También copiaremos todo el directorio de trabajo del repositorio dentro de la imagen para posteriormente compartarlo como volumen externo.
 
 
 ### Construcción imagen de Nginx en Docker
 
-Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. El archivo ```app.conf```reemplazará el ```/etc/nginx/conf.d/default.conf``` que el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
+Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. El archivo ```app.conf``` reemplazará el ```/etc/nginx/conf.d/default.conf``` que el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
 
 ```conf
 server {
@@ -250,7 +250,7 @@ build:
   - "./:/app"
 ```
 
-Aquí simplemente estamos diciendo a ```docker-compose``` que monte nuestra carpeta actual en el directorio ```/app``` en el contenedor cuando se activa. De esta manera, a medida que hacemos cambios en la aplicación, no tendremos que seguir construyendo la imagen a menos que sea un cambio importante, como una dependencia de un módulo de software.
+Aquí simplemente estamos diciendo a ```docker-compose``` que monte nuestra carpeta actual en el directorio ```/app``` en el contenedor cuando se activa. De esta manera, a medida que hacemos cambios en la aplicación, no tendremos que seguir construyendo la imagen a menos que sea un cambio importante, como una dependencia de un módulo de software. En este caso en el ```Dockerfile```de la imagen de flask ya habiamos preparado este directorio de trabajo.
 
 Para el servicio ```nginx```, hay algunas cosas a tener en cuenta:
 
@@ -338,9 +338,7 @@ La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell qu
 docker-compose up -d
 ```
 
-La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. 
-
-El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano.
+La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano.
 
 Para probar la creación de las imagen de Docker y los contenedores a partir de las imagenes resultantes, ejecute:
 
@@ -354,7 +352,7 @@ Una vez que la secuencia de comandos termine de ejecutarse, utilice el siguiente
 sudo docker ps
 ```
 
-Verá el contenedor docker.translate en ejecución. Ahora que se está ejecutando, visite la dirección IP en el puerto especificado de su navegador: http://```dominio:56733```.
+Verá los contenedores en ejecución en ejecución sobre un mismo servicio. Ahora que se está ejecutando, visite la dirección IP pública de su servidor en el puerto especificado de su navegador http://```IP:56733```. o accediendo desde su dominio personal http://```your-domain:56733```.
 
 ![cmd_docker](images/cmd_docker.PNG)
 
@@ -370,12 +368,9 @@ A veces, deberá realizar en la aplicación cambios que pueden incluir instalar 
 
 ```Autoreloading``` de Python controla el sistema completo de archivos en busca de cambios y actualiza la aplicación cuando detecta uno. No se aconseja el uso de _autoreloading_ en producción porque puede llegar a utilizar muchos recursos de forma muy rápida. En este paso, utilizará touch-reload para realizar la verificación en busca de cambios en un archivo concreto y volver a cargarlo cuando se actualice o sustituya.
 
-Para implementar esto, abra el archivo uwsgi.ini:
+Para implementar esto, abra el archivo uwsgi.ini e incorpore la siguiente linea de código:
 
 ```python
-module = main
-callable = app
-master = true
 touch-reload = /app/uwsgi.ini
 ```
 
@@ -397,4 +392,6 @@ También se configuró touch-reload para actualizar su aplicación sin necesidad
 Con su nueva aplicación en Docker, ahora podrá realizar el escalamiento de forma sencilla. Para obtener más información sobre el uso de Docker, consulte su [documentación oficial.](https://docs.docker.com/)
 
 Sin embargo, esta no es la manera más eficiente de implementar aplicaciones para producción, ya que, existen servicios mucho más confiables para ayudarlo a hacerlo y al mismo tiempo crear los enlaces de red necesarios entre contenedores cuando sea necesario (por ejemplo, AWS ECS, Heroku, Kubernetes, etc.)
+
+¡Espero que te sirva de útilidad yu pueda desplegar sus aplicaciones satisfactoriamente en producción como un servicio web! Sí es así, deja un aplauso y compartelo en redes sociales para poder compartir este conocimiento con toda la comunidad, ¡Muchas gracias por su atención y nos vemos en el próximo artículo!.
 
