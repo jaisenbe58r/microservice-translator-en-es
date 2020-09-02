@@ -2,9 +2,9 @@
 
 ![Portada](images/Portada1.PNG)
 
-El objetivo de este articulo es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
+El objetivo de este artículo es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
-Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutara, montará los volúmenes y configurará los hosts para que ambos puedan comunicarse entre sí.
+Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutará, montará los volúmenes y configurará los hosts para que ambos puedan comunicarse entre sí.
 
 La aplicación a desplegar como microservicio va a ser el _Traductor Inglés-Español_ basado en Transformers que se implementó en el [post anterior](https://medium.com/@jaimesendraberenguer/transformer-para-la-traducci%C3%B3n-de-texto-91c6d57d375d)
 
@@ -17,7 +17,7 @@ La aplicación a desplegar como microservicio va a ser el _Traductor Inglés-Esp
 
 **Flask** es un micromarco web que se compila con Python. Se denomina micromarco porque no requiere herramientas ni complementos específicos para ejecutarse. El marco de Flask es ligero, flexible y muy estructurado. Esto lo convierte en la opción preferida por encima de otros marcos.
 
-Implementar una aplicación de Flask con Docker le permitirá replicarla en varios servidores con una reconfiguración mínima.
+Implementar una aplicación de Flask con Docker le permitirá replicarla en varios servidores con una re-configuración mínima.
 
 A través de este tutorial, creará una aplicación de Flask y la implementará con Docker.
 
@@ -45,7 +45,7 @@ git clone https://github.com/jaisenbe58r/microservice-translator-en-es.git
 
 ## Paso 1: Configurar la aplicación de Flask
 
-El directorio ```microservice-translator-en-es``` contendrá todos los archivos relacionados con la aplicación de Flask, como sus vistas y modelos. Las vistas son el código para responder a las solicitudes a su aplicación. Los modelos crean componentes de aplicaciones, y admiten patrones comunes dentro de una aplicación y entre varias de estas.
+El directorio ```microservice-translator-en-es``` contendrá todos los archivos relacionados con la aplicación de Flask, como sus vistas y modelos. Las vistas son el código para responder a las solicitudes a su aplicación. Los modelos crean componentes de aplicaciones, y admite patrones comunes dentro de una aplicación y entre varias de estas.
 
 El directorio ```static``` es el punto en el que se alojan recursos como los archivos de imagen, CSS y JavaScript. El directorio ```templates``` es el espacio en el que dispondrá las plantillas HTML para su proyecto. El directorio ```model```será donde se guardarán los checkpoints de los modelos entrenados del Transformer.
 
@@ -170,7 +170,7 @@ Las últimas líneas copia el archivo ```requirements.txt``` al contenedor para 
 
 ### Construcción imagen de Nginx en Docker
 
-Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuesto archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. El archivo ```app.conf``` reemplazará el ```/etc/nginx/conf.d/default.conf``` que el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
+Antes de implementar la construcción de la imagen del contenedor Nginx, crearemos nuestro archivo de configuración que le dirá a Nginx cómo enrutar el tráfico a uWSGI en nuestro otro contenedor. El archivo ```app.conf``` reemplazará el ```/etc/nginx/conf.d/default.conf``` que el contenedor Nginx incluye implícitamente. [Lea más sobre los archivos conf de Nginx aquí.](http://nginx.org/en/docs/beginners_guide.html)
 
 ```conf
 server {
@@ -250,7 +250,7 @@ build:
   - "./:/app"
 ```
 
-Aquí simplemente estamos diciendo a ```docker-compose``` que monte nuestra carpeta actual en el directorio ```/app``` en el contenedor cuando se activa. De esta manera, a medida que hacemos cambios en la aplicación, no tendremos que seguir construyendo la imagen a menos que sea un cambio importante, como una dependencia de un módulo de software. En este caso en el ```Dockerfile```de la imagen de flask ya habiamos preparado este directorio de trabajo.
+Aquí simplemente estamos diciendo a ```docker-compose``` que monte nuestra carpeta actual en el directorio ```/app``` en el contenedor cuando se activa. De esta manera, a medida que hacemos cambios en la aplicación, no tendremos que seguir construyendo la imagen a menos que sea un cambio importante, como una dependencia de un módulo de software. En este caso en el ```Dockerfile```de la imagen de flask ya habíamos preparado este directorio de trabajo.
 
 Para el servicio ```nginx```, hay algunas cosas a tener en cuenta:
 
@@ -266,7 +266,7 @@ depends_on:
   - flask
 ```
 
-Tal y como se ha implementado en el ```app.conf```, enrutamos el tráfico de Nginx a uWSGI y viceversa enviando datos a través del ```flask```como nombre de host. Lo que hace esta sección es crear un nombre de host virtual ```flask```en nuestro contenedor ```nginx``` y configurar la red para que podamos enrutar los datos entrantes a nuestra aplicación uWSGI que vive en un contenedor diferente. La ```depends_on``` directiva también espera hasta que el contenedor ```flask```esté en un estado funcional antes de lanzar el contenedor ```nginx```, lo que evita tener un escenario en el que Nginx falla si el host ```flask``` no responde.
+Tal y como se ha implementado en el ```app.conf```, enrutamos el tráfico de Nginx a uWSGI y viceversa enviando datos a través del ```flask``` como nombre de host. Lo que hace esta sección es crear un nombre de host virtual ```flask```en nuestro contenedor ```nginx``` y configurar la red para que podamos enrutar los datos entrantes a nuestra aplicación uWSGI que vive en un contenedor diferente. La ```depends_on``` directiva también espera hasta que el contenedor ```flask```esté en un estado funcional antes de lanzar el contenedor ```nginx```, lo que evita tener un escenario en el que Nginx falla si el host ```flask``` no responde.
 
 
 
@@ -324,6 +324,7 @@ Por otra parte, se ha creado otro template para el resultado de la traducción `
          <input type="submit" value="Volver">
          <br>
       </form>
+   </div>
    </body>
 </html>
 ```
@@ -331,7 +332,7 @@ Por otra parte, se ha creado otro template para el resultado de la traducción `
 ## Paso 4: Desplegar Aplicación
 
 
-La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell que nos permitirá ejecutar la contrucción del ```docker-compose.yml```, para que los contenedores se ejecuten en modo background.
+La secuencia de comandos ```start.sh``` es una secuencia de comandos de shell que nos permitirá ejecutar la construcción del ```docker-compose.yml```, para que los contenedores se ejecuten en modo background.
 
 ```bash
 #!/bin/bash
@@ -340,7 +341,7 @@ docker-compose up -d
 
 La primera línea se denomina _shebang_. Especifica que este es un archivo bash y se ejecutará como comandos. El indicador ```-d``` se utiliza para iniciar un contenedor en el modo de demonio, o como proceso en segundo plano.
 
-Para probar la creación de las imagen de Docker y los contenedores a partir de las imagenes resultantes, ejecute:
+Para probar la creación de las imagen de Docker y los contenedores a partir de las imágenes resultantes, ejecute:
 
 ```shell
 sudo bash start.sh
@@ -393,5 +394,9 @@ Con su nueva aplicación en Docker, ahora podrá realizar el escalamiento de for
 
 Sin embargo, esta no es la manera más eficiente de implementar aplicaciones para producción, ya que, existen servicios mucho más confiables para ayudarlo a hacerlo y al mismo tiempo crear los enlaces de red necesarios entre contenedores cuando sea necesario (por ejemplo, AWS ECS, Heroku, Kubernetes, etc.)
 
-¡Espero que te sirva de útilidad yu pueda desplegar sus aplicaciones satisfactoriamente en producción como un servicio web! Sí es así, deja un aplauso y compartelo en redes sociales para poder compartir este conocimiento con toda la comunidad, ¡Muchas gracias por su atención y nos vemos en el próximo artículo!.
+En el siguiente artículo se trató el tema de la Puesta en Producción de un modelo de aprendizaje automático con Flask y Heroku:
+
+https://medium.com/@jaimesendraberenguer/puesta-en-producci%C3%B3n-de-un-modelo-de-aprendizaje-autom%C3%A1tico-con-flask-y-heroku-a699422e20fc
+
+¡Espero que te sirva de utilidad y pueda desplegar sus aplicaciones satisfactoriamente en producción como un servicio web! Sí es así, deja un aplauso y compartelo en redes sociales para poder compartir este conocimiento con toda la comunidad, ¡Muchas gracias por su atención y nos vemos en el próximo artículo!.
 
