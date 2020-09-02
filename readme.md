@@ -2,7 +2,7 @@
 
 ![Portada](images/Portada1.PNG)
 
-El objetivo de este artículo es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
+El objetivo de este [artículo](https://medium.com/@jaimesendraberenguer/microservicio-deep-learning-alojado-en-digitalocean-usando-docker-flask-y-nginx-224d27f3f3ed) es desplegar una aplicación de Flask utilizando Docker, con el objetivo de crear un microservicio alojado en un Droplet de DigitalOcean como servidor, con acceso al microservicio bajo un dominio personal con nuestro droplet.
 
 Queremos que uWSGI funcione como servidor web y queremos que el tráfico se enrute a través de Nginx. Estas dos piezas tienen sus propias dependencias, propósito y responsabilidades, por lo que podemos aislar cada una en un contenedor. Por lo tanto, podemos construir dos Dockerfiles para cada servicio, que ```docker-compose``` luego los ejecutará, montará los volúmenes y configurará los hosts para que ambos puedan comunicarse entre sí.
 
