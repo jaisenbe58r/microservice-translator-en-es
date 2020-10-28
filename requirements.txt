@@ -1,6 +1,6 @@
 Flask==1.0.2
 uWSGI==2.0.17.1
 # tensorflow-cpu==2.3.0
-tensorflow-cpu
+tensorflow
 tensorflow_datasets==3.2.1
 mlearner==0.2.7
