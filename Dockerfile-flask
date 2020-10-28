@@ -1,7 +1,8 @@
 # Dockerfile-flask
 # We simply inherit the Python 3 image. This image does
 # not particularly care what OS runs underneath
-FROM python:3
+# FROM python:3
+FROM  tensorflow/tensorflow:2.3.0-custom-op-ubuntu16
 RUN apt -qq -y update \
 	&& apt -qq -y upgrade
 RUN pip install --upgrade pip
